@@ -1,12 +1,13 @@
 package controllers;
 
-import static play.Logger.info;
+import static play.Logger.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.beanutils.BeanMap;
 import model.Album;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -16,10 +17,11 @@ import views.html.token;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
-import com.google.gdata.data.Link;
+import com.google.gdata.data.media.mediarss.MediaGroup;
 import com.google.gdata.data.photos.AlbumEntry;
 import com.google.gdata.data.photos.AlbumFeed;
 import com.google.gdata.data.photos.GphotoEntry;
+import com.google.gdata.data.photos.GphotoPhotosUsed;
 import com.google.gdata.data.photos.UserFeed;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
@@ -69,9 +71,9 @@ public class Application extends Controller {
 		
 		l = new ArrayList<Album>();		
 		int i = 0;
-		for(PicasawebService myService: myServices) {
-			UserFeed myUserFeed = myService.getFeed(feedUrl, UserFeed.class);
-			for(AlbumEntry a: myUserFeed.getAlbumEntries()) {
+		for(PicasawebService s: myServices) {
+			UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
+			for(AlbumEntry a: feed.getAlbumEntries()) {
 				String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
 				l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i));
 			}
@@ -88,34 +90,17 @@ public class Application extends Controller {
 	}
 	
 	public static Result albumsPartial() throws IOException, ServiceException {
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:numphotos,media:group)");
+		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE+"&fields=entry(title,id,gphoto:id,gphoto:numphotos,media:group/media:thumbnail)");
 		Query albumQuery = new Query(feedUrl);
 		
 		l = new ArrayList<Album>();		
 		int i = 0;
-		for(PicasawebService myService: myServices) {
+		for(PicasawebService s: myServices) {
 			try {
-				UserFeed myUserFeed = myService.query(albumQuery, UserFeed.class);
-				info(myUserFeed.getAlbumEntries()+"");
-				for (GphotoEntry partialEntry : myUserFeed.getEntries()) {
-					info(partialEntry+"");
-					info(partialEntry.getLinks()+"");
-					info(partialEntry.getTitle().getPlainText()+"");
-					info(partialEntry.getId()+"");
-					info(partialEntry.getSelectedFields());
-					
-					String id1 = partialEntry.getId().substring(partialEntry.getId().lastIndexOf('/')+1);
-					l.add(new Album(id1, partialEntry.getTitle().getPlainText(), "", 0, i));
-					
-					for(Object l: partialEntry.getLinks()) {
-						Link l1 = (Link) l;
-						info(l1.getHref());
-					}
-					  if (partialEntry instanceof AlbumEntry) {
-						  AlbumEntry a = (AlbumEntry) partialEntry;
-							String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
-							l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i));
-					  }
+				UserFeed feed = s.query(albumQuery, UserFeed.class);
+				for (GphotoEntry e : feed.getEntries()) {
+					// describe(e);
+					l.add(new Album(e.getGphotoId(), e.getTitle().getPlainText(), e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -135,8 +120,20 @@ public class Application extends Controller {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"?kind=photo,tag&thumbsize="+THUMB_SIZE+"&imgmax="+IMG_SIZE);
 		AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);
 		if(l == null) {
-			albums();
+			albumsPartial();
 		}
 		return ok(photos.render(feed, feed.getPhotoEntries(), l));
+	}
+	
+	private static void describe(Object o) {
+		BeanMap m = new BeanMap(o);
+		for(Object k: m.keySet()) {
+			String key = (String) k;
+			try {
+				info(key+ " = " + m.get(key)+"");
+			} catch (Exception e) {
+				warn(key + " retrieving error");
+			}
+		}
 	}
 }
