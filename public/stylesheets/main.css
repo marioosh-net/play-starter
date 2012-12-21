@@ -848,3 +848,7 @@ div.message {
 	color: #fff;
 	font-size: 1.2em; 
 }
+
+#right {
+	position: fixed;
+}

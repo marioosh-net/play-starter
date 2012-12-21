@@ -166,6 +166,6 @@ public class Application extends Controller {
 		}
 		// debug("TITLE:"+feed.getTitle()+"");
 		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, getAlbums()));
+		return ok(photos.render(feed, lp, null));
 	}
 }

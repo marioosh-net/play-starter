@@ -23,7 +23,7 @@
 	                <div class="left leftfixed">
                         @content
 	                </div>
-	                <div class="right rightfixed">
+	                <div class="right rightfixed" id="rightfull">
 	                   @if(message != null) {
                         <div class="message">@message</div>
                         }	                
@@ -33,9 +33,8 @@
                           </div>
                           <div class="right" style="margin-top: 10px;"></div>
                           <div class="clear"></div>
-                        </div>	                
-	                    @contentright
-	                    
+                        </div>	     
+                        <div id="right">@contentright</div>	                    
 	                    <div>
 	                       <ul><li><a href="/test">+1album</a></li><li><a href="/test/5">+5album</a></li></ul>
 	                    </div>
