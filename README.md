@@ -1,4 +1,4 @@
 play-starter
 ============
 
-Play Framework starter / test appplication
+Play Framework starter / test appplication (Picasa Web Albums)
