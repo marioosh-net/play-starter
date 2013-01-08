@@ -24,9 +24,7 @@ import views.html.albums;
 import views.html.albumslist;
 import views.html.main;
 import views.html.photos;
-import views.html.token;
 import com.google.gdata.client.Query;
-import com.google.gdata.client.http.AuthSubUtil;
 import com.google.gdata.client.photos.PicasawebService;
 import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.media.mediarss.MediaGroup;
@@ -116,7 +114,6 @@ public class Application extends Controller {
 			try {
 				UserFeed feed = s.query(albumQuery, UserFeed.class);
 				for (GphotoEntry e : feed.getEntries()) {
-					// Utils.describe(e);
 					if(e.getGphotoId() != null) {
 						
 						if(session("user") != null || e.getTitle().getPlainText().endsWith("\u00A0")) {
@@ -127,7 +124,6 @@ public class Application extends Controller {
 							l.add(new Album(e.getGphotoId(), t, e.getExtension(MediaGroup.class).getThumbnails().get(0).getUrl(), e.getExtension(GphotoPhotosUsed.class).getValue(), i, e.getTitle().getPlainText().endsWith("\u00A0")));
 						}
 					} else {
-						// tag... (?kind=album,tag)
 						debug("album TAG: "+e.getTitle().getPlainText());
 					}
 				}
@@ -152,7 +148,7 @@ public class Application extends Controller {
 	}
 	
 	/**
-	 * photos in album list
+	 * photos in album list as Result
 	 * @param serviceIndex
 	 * @param albumId
 	 * @param start
@@ -164,7 +160,17 @@ public class Application extends Controller {
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		return ok(photosHtml(serviceIndex, albumId, start, max));
 	}
-	
+
+	/**
+	 * photos in album list
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param start
+	 * @param max
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */	
 	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);

@@ -1,12 +1,24 @@
 @(feed: com.google.gdata.data.photos.AlbumFeed, photos: List[model.Photo], albums: List[model.Album], map: java.util.HashMap[String,Integer], pages: List[Integer])
-@*
-@main("Photos",null) {
-	@albumslist(albums)
-} {
-*@
-    <div id="photos-header">
+
+@showPages() = {
+
+    @if(pages.size() > 1) {
+        <div class="pages">
+            @for(p <- pages) {
+                @if((p-1) * map.get("per") + 1 == map.get("start")) {
+                    <div><span style="color: #fff;">[@p]</span></div>
+                } else {
+                    <div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)'); return false;">[@p]</a></div>
+                }
+            }   
+        </div>
+        <div class="clear"></div>
+    }
+}
+
+<div id="photos-header">
     <div class="left album-title">
-        <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="#">@session.get("aname")@*@feed.getTitle().getPlainText()*@</a>
+        <a href="/">albumy</a>&nbsp;&raquo;&nbsp; <a href="/direct/@session.get("si")/@session.get("ai")">@session.get("aname")</a>
         @if(session.get("user") != null) {
         <span class="album_options">
         <a id="pubal" href="#" style="@if(session.get("pub") != null){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@session.get("ai")'}).done(function(r) {if(r == '0') {$('#prival').hide();$('#pubal').show();} else {$('#prival').show();$('#pubal').hide();}}); return false;">public</a>
@@ -19,75 +31,36 @@
     <div class="clear"></div>
 </div>
 
-    @*
-    <ul class="photos"> 
-    @for(photo <- photos) {
-      <li><a class="lightview" data-lightview-group="a@photo.getId()" data-lightview-title="<a href='@photo.getMediaContents().get(0).getUrl()' target='_blank'>@photo.getTitle().getPlainText()</a>" data-lightview-group-options="controls: 'thumbnails'" data-lightview-options="thumbnail: '@photo.getThumbs().get(1)'" href="@photo.getThumbs().get(2)"><img alt="@photo.getTitle().getPlainText()" src="@photo.getThumbs().get(0)"/></a></li>
-    } 
-    </ul>
-    *@
+@if(session.get("user") != null) {
+	@showPages()
+}
 
-@******* show pages ********@
-@showPages() = {
+<div id="photos">
+   @for(i <- photos.indices) {
+   
+       <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
+           <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title='<a href="@photos(i).getContent()" target="_blank">@photos(i).getTitle()</a>@if(session.get("user") != null) { 
+           <a id="ipub@i" style="@if(photos(i).isPub()){display: none;}" href="#" onclick="$.ajax({url: &#39;/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;}).done(function(r) {if(r == &#39;0&#39;) {$(&#39;#ipriv@i&#39;).hide();$(&#39;#ipub@i&#39;).show();} else {$(&#39;#ipriv@i&#39;).show();$(&#39;#ipub@i&#39;).hide();}}); return false;">public</a>
+           <a id="ipriv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" href="#" onclick="$.ajax({url: &#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;}).done(function(r) {if(r == &#39;0&#39;) {$(&#39;#ipriv@i&#39;).hide();$(&#39;#ipub@i&#39;).show();} else {$(&#39;#ipriv@i&#39;).show();$(&#39;#ipub@i&#39;).hide();}}); return false;">private</a>}' data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)" data-lightview-caption="">
+            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
+            <div id="u@photos(i).hashCode()" class="thumb ttip" onmouseover="exif('@session.get("si")', '@photos(i).getAlbumId()', '@photos(i).getId()')" style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
+            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="$('#t@i').hide(); $('#u@photos(i).hashCode()').show();"/>
+           </a>
+           <a href="@photos(i).getThumbs().get(2)" title="Otwórz w nowym oknie" target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
+           <span style="display: none;">@for(tag <- photos(i).getKeywords()) {@tag,}</span>
+           
+           @if(session.get("user") != null) {
+		<div class="thumb_options">
+			<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >public</a>
+			<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
 
-	@if(pages.size() > 1) {
-		<div class="pages">
-			@for(p <- pages) {
-				@if((p-1) * map.get("per") + 1 == map.get("start")) {
-					<div><span style="color: #fff;">[@p]</span></div>
-				} else {
-					<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@((p-1) * map.get("per") + 1)'); return false;">[@p]</a></div>
-				}
-			}	
-			
-			@*total:@map.get("total");start:@map.get("start");per:@map.get("per")<br/>*@
-			
-			@*
-			@if(map.get("start") != 1) {
-				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")-map.get("per"))'); return false;">[&laquo; prev ]</a></div>
-			}
-			@if(map.get("start")+map.get("per")-1 < map.get("total")) {
-				<div><a href="#" onclick="loadingIcon(this); $('#right').load('/album/@session.get("si")/@session.get("ai")?start=@(map.get("start")+map.get("per"))'); return false;">[ next &raquo;]</a></div>
-			}
-			*@
 		</div>
-		<div class="clear"></div>
-	}
-}
-@******* show pages END ********@
-
-@if(session.get("user") != null) {
-	@showPages()
-}
-
-	<div id="photos">
-    @for(i <- photos.indices) {
-    
-        <div id="th@i" class="thumb_box" style="@if(session.get("user") != null){height:auto;}" >
-            <a class="lightview" data-lightview-group="a@photos(i).getAlbumId()" data-lightview-title='<a href="@photos(i).getContent()" target="_blank">@photos(i).getTitle()</a>@if(session.get("user") != null) { 
-            <a id="ipub@i" style="@if(photos(i).isPub()){display: none;}" href="#" onclick="$.ajax({url: &#39;/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;}).done(function(r) {if(r == &#39;0&#39;) {$(&#39;#ipriv@i&#39;).hide();$(&#39;#ipub@i&#39;).show();} else {$(&#39;#ipriv@i&#39;).show();$(&#39;#ipub@i&#39;).hide();}}); return false;">public</a>
-            <a id="ipriv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" href="#" onclick="$.ajax({url: &#39;/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()&#39;}).done(function(r) {if(r == &#39;0&#39;) {$(&#39;#ipriv@i&#39;).hide();$(&#39;#ipub@i&#39;).show();} else {$(&#39;#ipriv@i&#39;).show();$(&#39;#ipub@i&#39;).hide();}}); return false;">private</a>}' data-lightview-group-options="controls: 'thumbnails', slideshow: 3000" data-lightview-options="thumbnail: '@photos(i).getThumbs().get(1)'" href="@photos(i).getThumbs().get(2)" data-lightview-caption="">
-	            <div id="t@i" class="thumb" style="background-image: url('@routes.Assets.at("images/ajax-loader7.gif")'); background-position: 50% 50%; "></div>
-	            <div id="u@photos(i).hashCode()" class="thumb ttip" onmouseover="exif('@session.get("si")', '@photos(i).getAlbumId()', '@photos(i).getId()')" style="float: none; display: none; background-image: url(@photos(i).getThumbs().get(0)); "></div>
-	            <img style="display: none;" src="@photos(i).getThumbs().get(0)" onload="$('#t@i').hide(); $('#u@photos(i).hashCode()').show();"/>
-            </a>
-            <a href="@photos(i).getThumbs().get(2)" title="Otwórz w nowym oknie" target="_blank"><img class="full" src="@routes.Assets.at("images/n3.png")" alt="full size"></a>
-            <span style="display: none;">@for(tag <- photos(i).getKeywords()) {@tag,}</span>
-            
-            @if(session.get("user") != null) {
-			<div class="thumb_options">
-				<a href="#" id="pub@i" style="@if(photos(i).isPub()){display: none;}" onclick="$.ajax({url: '/pub/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >public</a>
-				<a href="#" id="priv@i" style="@if(!photos(i).isPub()){display: none;} color: #5CCCCC; font-weight: bold;" onclick="$.ajax({url: '/priv/@session.get("si")/@photos(i).getAlbumId()/@photos(i).getId()'}).done(function(r) {if(r == '0') {$('#priv@i').hide();$('#pub@i').show();} else {$('#priv@i').show();$('#pub@i').hide();}}); return false;" >private</a>
-
-			</div>
-			}   
-        </div>
-    }
-    <div class="clear"></div>
-    </div>
+		}   
+       </div>
+   }
+   <div class="clear"></div>
+</div>
     
 @if(session.get("user") != null) {
 	@showPages()
 }
-
-@*}*@

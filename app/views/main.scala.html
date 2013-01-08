@@ -21,11 +21,9 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.mousewheel.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.jscrollpane.min.js")"></script>
         <script>
-        $(function()
-        		{
-        			scrollRefresh();
-        		    /*$('#albums-only').jScrollPane();*/
-        		});        
+        $(function() {
+            scrollRefresh();
+        });        
         </script>
         
     </head>
@@ -60,13 +58,7 @@
                         </div>
                         
                         <div id="right">@contentright</div>	                
-	                    
-	                    @*
-	                    <div>
-	                       <ul><li><a href="/test">+1album</a></li><li><a href="/test/5">+5album</a></li></ul>
-	                    </div>
-	                    *@
-	                    
+	                    	                    
 				        <div id="footer-right">
 				            Inspired by <a href="http://minishowcase.net">minishowcase</a>. Powered by <a href="http://www.playframework.org/"><img style="vertical-align: text-bottom;" src="@routes.Assets.at("images/play.png")"></a>&nbsp;|&nbsp;<a href="http://marioosh.net">marioosh.net</a>
 				            <br>Images presented on this site may not be used without permission
