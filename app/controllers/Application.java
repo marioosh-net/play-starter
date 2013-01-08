@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
+import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
 import scala.actors.threadpool.Arrays;
 import views.html.albums;
+import views.html.albumslist;
+import views.html.main;
 import views.html.photos;
 import views.html.token;
 import com.google.gdata.client.Query;
@@ -90,44 +93,8 @@ public class Application extends Controller {
 		}
 		return ok(albums.render(getAlbums(), "login error"));
 	}
-	
-	public static Result auth() {
-		myService = new PicasawebService("testApp");
-		String requestUrl = AuthSubUtil.getRequestUrl("http://localhost:9000/token", "https://picasaweb.google.com/data/", false, true);
-		info(requestUrl);
-		return redirect(requestUrl);
-	}
-	
-	public static Result token(String sessionToken) {
-		info("TOKEN:" + sessionToken);
-		myService.setAuthSubToken(sessionToken, null);
-		return ok(token.render(sessionToken));
-	}
-	
+		
 	public static Result albums(String message) throws IOException, ServiceException {
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default?kind=album&thumbsize="+THUMB_SIZE);
-		
-		List<Album> l = new ArrayList<Album>();		
-		int i = 0;
-		for(PicasawebService s: myServices) {
-			UserFeed feed = s.getFeed(feedUrl, UserFeed.class);
-			for(AlbumEntry a: feed.getAlbumEntries()) {
-				String id = a.getId().substring(a.getId().lastIndexOf('/')+1);
-				l.add(new Album(id, a.getTitle().getPlainText(), a.getMediaThumbnails().get(0).getUrl(), a.getPhotosUsed(), i, a.getTitle().getPlainText().endsWith("\u00A0")));
-			}
-		i++;
-		}
-		Collections.sort(l, new Comparator<Album>() {
-			@Override
-			public int compare(Album o1, Album o2) {
-				return o1.getTitle().compareTo(o2.getTitle());
-			}});
-		
-		albumsPartial(null);
-		return ok(albums.render(l, message));
-	}
-	
-	public static Result albumsPartial(String message) throws IOException, ServiceException {
 		debug("LOGGED: " + session("user"));
 		return ok(albums.render(getAlbums(), message));
 	}
@@ -180,6 +147,10 @@ public class Application extends Controller {
 		return l;
 	}
 	
+	public static Result direct(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+		return ok(main.render(albumId+"", null, albumslist.render(getAlbums()), photosHtml(serviceIndex, albumId, start, max)));
+	}
+	
 	/**
 	 * photos in album list
 	 * @param serviceIndex
@@ -191,6 +162,10 @@ public class Application extends Controller {
 	 * @throws ServiceException
 	 */
 	public static Result photos(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
+		return ok(photosHtml(serviceIndex, albumId, start, max));
+	}
+	
+	private static Html photosHtml(int serviceIndex, String albumId, int start, int max) throws IOException, ServiceException {
 		info("Getting photos list...");
 		myService = myServices.get(serviceIndex);
 		session("si", serviceIndex+"");
@@ -209,7 +184,6 @@ public class Application extends Controller {
 		debug(feedUrl.toString());
 		Query photosQuery = new Query(feedUrl);
 		
-		// AlbumFeed feed = myService.getFeed(feedUrl, AlbumFeed.class);		
 		AlbumFeed feed = myService.query(photosQuery, AlbumFeed.class);
 		if(feed.getTitle().getPlainText().endsWith("\u00A0")) {
 			session("pub", "1");
@@ -219,9 +193,6 @@ public class Application extends Controller {
 		
 		String t = feed.getTitle().getPlainText();
 		session("aname", t);
-		debug("total:"+feed.getTotalResults());
-		debug("perPage:"+feed.getItemsPerPage());
-		debug("start:"+feed.getStartIndex());
 		java.util.HashMap<String, Integer> map = new java.util.HashMap<String, Integer>();
 		map.put("total",feed.getTotalResults());
 		map.put("start",feed.getStartIndex());
@@ -232,24 +203,12 @@ public class Application extends Controller {
 			pages.add(i);
 		}
 		
-		// describe(feed.getEntries().get(0));
 		List<Photo> lp = new ArrayList<Photo>();
 		for(GphotoEntry<PhotoEntry> e: feed.getEntries()) {
-			// Utils.describe(e);
-			// debug("EXTENSIONS:" + e.getExtensions()+"");
 			MediaGroup g = e.getExtension(MediaGroup.class);
 			ExifTags exif = e.getExtension(ExifTags.class);
-			//Utils.describe(exif);
 			
 			if(g != null) {
-				/*
-				debug(g.getContents().size()+"");
-				debug(g.getThumbnails().size()+"");
-				debug("thumbs:"+g.getThumbnails().get(0).getUrl());
-				debug("thumbs:"+g.getThumbnails().get(1).getUrl());
-				debug("thumbs:"+g.getThumbnails().get(2).getUrl());
-				debug("orig:"+g.getContents().get(0).getUrl());
-				*/
 				boolean pub = g.getKeywords().getKeywords().contains("public");
 				if(session("user") != null || pub) {
 					lp.add(new Photo(e.getTitle().getPlainText(), 
@@ -263,9 +222,7 @@ public class Application extends Controller {
 				}
 			}
 		}
-		// debug("TITLE:"+feed.getTitle()+"");
-		// return ok(photos.render(feed, (List<GphotoEntry<PhotoEntry>>)feed.getEntries<PhotoEntry>(), l));
-		return ok(photos.render(feed, lp, null, map, pages));
+		return photos.render(feed, lp, null, map, pages);
 	}
 	
 	/**
@@ -300,27 +257,6 @@ public class Application extends Controller {
 		TagEntry te = myServices.get(serviceIndex).getEntry(entryUrl, TagEntry.class);
 		te.delete();
 		return ok("0");
-		
-		/*
-		URL feedUrl = new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"?kind=tag&tag=public");
-		debug(feedUrl+"");
-		Query photosQuery = new Query(feedUrl);
-		AlbumFeed searchResultsFeed = myServices.get(serviceIndex).query(photosQuery, AlbumFeed.class);
-		for (TagEntry tag : searchResultsFeed.getTagEntries()) {
-			if(tag.getTitle().getPlainText().equals("public")) {
-				tag.delete();
-				break;
-			}
-		}
-		return ok("0");
-		*/		
-				
-		/*
-		TagEntry myTag = myServices.get(serviceIndex).getEntry(new URL("https://picasaweb.google.com/data/feed/api/user/default/albumid/"+albumId+"/photoid/"+photoId+"/tag/public"), TagEntry.class);
-		myTag.delete();
-		// myServices.get(serviceIndex).insert(feedUrl, myTag);
-		return ok("0");
-		*/
 	}
 
 	/**
@@ -357,40 +293,33 @@ public class Application extends Controller {
 		return ok("0");
 	}
 	
+	/**
+	 * get exif tags
+	 * @param serviceIndex
+	 * @param albumId
+	 * @param photoId
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
 	public static Result exif(int serviceIndex, String albumId, String photoId) throws IOException, ServiceException {
 		URL feedUrl = new URL("https://picasaweb.google.com/data/entry/api/user/default/albumid/"+albumId+"/photoid/"+photoId+
 				"?fields=exif:tags,title");
-		// debug(feedUrl+"");
 		PhotoEntry pe = myServices.get(serviceIndex).getEntry(feedUrl, PhotoEntry.class);
-		// debug(pe+"");
-		if(pe.hasExifTags() && pe.getExifTags() != null) {
-			ExifTags e = pe.getExifTags();
-			return ok(formatExifTags(e, pe));			
-		} else {
-			return ok("No EXIF tags.");
-		}
+		return ok(exifTagsHtml(pe));
 	}
 
-	private static String formatExifTags(ExifTags e, PhotoEntry pe) throws ParseException {
-		// debug(e+"");
-		
-		/*
-		Utils.describe(e);
-		for(ExifTag tag: e.getExifTags()) {
-			info(tag.getName() + ":" + tag.getValue());
-		}
-		for(List<Extension> l: e.getRepeatingExtensions()) {
-			for(Extension ex: l) {
-				if(ex instanceof ExifTag) {
-					ExifTag t = (ExifTag) ex;
-					info(t.getName() + ":" + t.getValue());
-				}
-			}
-		}
-		*/
-
-		String a = null;
-		String exif = 
+	/**
+	 * get exif tags in html from photoEntry
+	 * @param pe
+	 * @return
+	 * @throws ParseException
+	 */
+	private static Html exifTagsHtml(PhotoEntry pe) throws ParseException {
+		if(pe.hasExifTags() && pe.getExifTags() != null) {
+			ExifTags e = pe.getExifTags();
+			String a = null;
+			String exif = 
 				"<pre>" +
 				(e.getTime() != null ? "Create Date                     :"+ (e.getTime() != null ? sdf.format(e.getTime()) : "") + "\n" : "") +
 				(pe != null && pe.getTitle() != null ? "File Name                       :" + pe.getTitle().getPlainText() + "\n" : "") +
@@ -411,6 +340,9 @@ public class Application extends Controller {
 				(a != null ? "Image Width                     :" + a + "\n" : "" ) +
 				(a != null ? "Image Height                    :" + a : "") +
 				"</pre>";
-		return exif;
+			return new Html(exif);
+		} else {
+			return new Html("<pre>No EXIF tags</pre>");
+		}
 	}
 }
