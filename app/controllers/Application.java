@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
+import play.api.Play;
 import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -46,13 +47,16 @@ public class Application extends Controller {
 	
 	static final String THUMB_SIZE = "104c,72c,800";
 	static final String IMG_SIZE = "1600";//"d";
+	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
+	
 	static final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
+	
 	static public List<PicasawebService> myServices = new ArrayList<PicasawebService>();
 	static private PicasawebService myService;
 
 	public static void loadServices() {
 		try {
+			
 			info("Loading services...");
 			Properties p = new Properties();
 			InputStream in =  Application.class.getResourceAsStream("/resources/accounts.properties");
@@ -85,7 +89,7 @@ public class Application extends Controller {
 	}
 	
 	public static Result login(String hash) throws MalformedURLException {
-		if(hash.equals("password")) {
+		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
 			return ok(albums.render(getAlbums(), null));
 		}
