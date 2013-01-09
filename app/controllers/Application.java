@@ -20,6 +20,7 @@ import java.util.Properties;
 import model.Album;
 import model.Photo;
 import play.api.Play;
+import play.api.i18n.Lang;
 import play.api.templates.Html;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -112,7 +113,6 @@ public class Application extends Controller {
 	 * @throws ServiceException
 	 */
 	public static Result login() throws IOException, ServiceException {
-		
 		final Map<String, String[]> values = request().body().asFormUrlEncoded();
 	    final String hash = values.get("pass")[0];
 		if(hash.equals(ADMIN_PASSWORD)) {
@@ -124,7 +124,9 @@ public class Application extends Controller {
 	}	
 		
 	public static Result albums(String message) throws IOException, ServiceException {
-		debug("LOGGED: " + session("user"));
+		if(request().queryString().get("lang") != null) {
+			response().setCookie("lang", request().queryString().get("lang")[0]);
+		}
 		return ok(albums.render(getAlbums(), message));
 	}
 	
