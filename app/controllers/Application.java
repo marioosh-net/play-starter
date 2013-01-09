@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import model.Album;
 import model.Photo;
@@ -94,18 +95,33 @@ public class Application extends Controller {
 		}		
 	}
 	
+	/**
+	 * logout
+	 * @return
+	 * @throws MalformedURLException
+	 */
 	public static Result logout() throws MalformedURLException {
 		session().clear();
 		return ok(albums.render(getAlbums(), null));
 	}
-	
-	public static Result login(String hash) throws MalformedURLException {
+
+	/**
+	 * login 
+	 * @return
+	 * @throws IOException
+	 * @throws ServiceException
+	 */
+	public static Result login() throws IOException, ServiceException {
+		
+		final Map<String, String[]> values = request().body().asFormUrlEncoded();
+	    final String hash = values.get("pass")[0];
 		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
-			return ok(albums.render(getAlbums(), null));
+			// return ok(albums.render(getAlbums(), null));
+			return redirect("/");
 		}
 		return ok(albums.render(getAlbums(), "login error"));
-	}
+	}	
 		
 	public static Result albums(String message) throws IOException, ServiceException {
 		debug("LOGGED: " + session("user"));
