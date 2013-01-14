@@ -1,0 +1,18 @@
+@(list: List[model.MenuItem])
+@snippet(item: model.MenuItem) = {
+	<a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected');" href="#" title="@item.getTitle()" >
+	    <div id="uu" class="oneset">
+	        @item.getTitle()
+	    </div>
+	</a>    
+}
+<div id="albums">
+    <div class="frame-albums">
+        <div id="albums-only">
+		@for(menuItem <- list) {
+		    @snippet(menuItem)
+		}
+        </div>
+    </div>
+</div>
+

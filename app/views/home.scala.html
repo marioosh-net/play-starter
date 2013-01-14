@@ -1,0 +1,9 @@
+@(message: String, menu: Html)
+@main("Home") {
+    @menu
+} {
+    @if(message != null) {
+        <div class="message">@message</div>
+    }
+    RIGHT CONTENT
+}

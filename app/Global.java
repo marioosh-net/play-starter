@@ -10,7 +10,6 @@ public class Global extends GlobalSettings {
 
 	@Override
 	public void onStart(Application app) {
-		controllers.Application.loadServices();
 		Logger.info("Application has started");		
 	}
 
