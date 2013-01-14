@@ -23,7 +23,7 @@ body,html {
 div {
     
 }
-input {
+input[type="text"] {
     height: 13px;
     font-size: 10px;
 }

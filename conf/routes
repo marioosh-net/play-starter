@@ -4,6 +4,8 @@
 
 # Home page
 POST     /login                                      controllers.Application.login()
+POST     /add                                      controllers.Application.add()
+GET      /deleteall                                 controllers.Application.deleteAll()
 GET     /logout                                     controllers.Application.logout()
 GET     /                                           controllers.Application.home(message ?="")
 

@@ -1,18 +1,29 @@
-@(list: List[model.MenuItem])
-@snippet(item: model.MenuItem) = {
-	<a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected');" href="#" title="@item.getTitle()" >
+@(notes: List[models.Note])
+@snippet(note: models.Note) = {
+	<a onclick="$('.oneset').removeClass('album-selected'); $(this).find('div').addClass('album-selected');" href="#" title="@note.getTitle()" >
 	    <div id="uu" class="oneset">
-	        @item.getTitle()
+	        @note.getTitle()
 	    </div>
+            @if(session.get("user") != null) {
+               <a href="#">Delete</a>
+            }
+	    
 	</a>    
 }
 <div id="albums">
     <div class="frame-albums">
         <div id="albums-only">
-		@for(menuItem <- list) {
-		    @snippet(menuItem)
+		@for(note <- notes) {
+		    @snippet(note)
 		}
         </div>
     </div>
 </div>
+
+<form method="post" action="/add">
+    Title:<br/><input type="text" name="title"/><br/>
+    Content:<br/><textarea name="content"></textarea><br/>
+    <input type="submit" value="Add note"/>
+</form>
+<a href="/deleteall">Delete All</a>
 
