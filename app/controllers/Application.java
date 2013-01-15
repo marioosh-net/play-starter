@@ -1,5 +1,7 @@
 package controllers;
 
+import interceptors.Headers;
+import interceptors.Logged;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Date;
@@ -91,6 +93,7 @@ public class Application extends Controller {
 		return redirect("/");
 	}
 	
+	@With(Headers.class)
 	public static Result openNote(Long id) {
 		Note n = Note.find.byId(id);
 		return ok(note.render(n));
