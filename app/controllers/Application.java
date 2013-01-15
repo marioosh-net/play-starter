@@ -12,6 +12,7 @@ import play.data.Form;
 import play.data.validation.ValidationError;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.With;
 import views.html.home;
 import views.html.notes;
 import views.html.note;
@@ -22,15 +23,13 @@ public class Application extends Controller {
 	
 	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
 
-	static Form<Note> noteForm = form(Note.class);
-	
 	public static Html menu() {
 		List<Note> l = Note.find.all();
 		Logger.info(l+"");
 		
 		return notes.render(Note.find.all());
 	}
-	
+
 	public static Result home(String message) {
 		if(request().queryString().get("lang") != null) {
 			response().setCookie("lang", request().queryString().get("lang")[0]);
@@ -54,6 +53,7 @@ public class Application extends Controller {
 	}	
 	
 	public static Result add() {
+		Form<Note> noteForm = form(Note.class);
 		if(noteForm.bindFromRequest().hasErrors()) {
 			return badRequest("Title required!");
 		}
@@ -82,12 +82,13 @@ public class Application extends Controller {
 		Ebean.createSqlUpdate("delete from Note").execute();
 		return redirect("/");
 	}
-	
+
 	public static Result delete(Long id) {
 		Note.find.byId(id).delete();
 		return redirect("/");
 	}
-	
+
+	@With(Interceptor.class)
 	public static Result openNote(Long id) {
 		Note n = Note.find.byId(id);
 		return ok(note.render(n));
