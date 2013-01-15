@@ -40,7 +40,7 @@
 	                        @if(session.get("user") != null) {
 	                            <a href="/logout" >Logout</a>
 	                        } else {
-	                            <span id="form" style="display: none;"><form id="f" action="/login" method="post" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
+	                            <span id="form" style="display: none;"><form id="f" action="/login" method="post" style="display: inline;"><input name="pass" type="password" value="password"/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
 	                            <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>&nbsp;
 	                        }
 						</div>

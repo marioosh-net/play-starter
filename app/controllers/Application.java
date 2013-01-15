@@ -51,7 +51,8 @@ public class Application extends Controller {
 		}
 		return ok(home.render("login error", menu()));
 	}	
-	
+
+	@With(Logged.class)
 	public static Result add() {
 		Form<Note> noteForm = form(Note.class);
 		if(noteForm.bindFromRequest().hasErrors()) {
@@ -78,17 +79,18 @@ public class Application extends Controller {
 		return redirect("/");
 	}
 	
+	@With(Logged.class)
 	public static Result deleteAll() {
 		Ebean.createSqlUpdate("delete from Note").execute();
 		return redirect("/");
 	}
 
+	@With(Logged.class)
 	public static Result delete(Long id) {
 		Note.find.byId(id).delete();
 		return redirect("/");
 	}
-
-	@With(Interceptor.class)
+	
 	public static Result openNote(Long id) {
 		Note n = Note.find.byId(id);
 		return ok(note.render(n));
