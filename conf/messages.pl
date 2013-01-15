@@ -1,5 +1,10 @@
-search=Szukaj
-all=Wszystko
-login=Zaloguj
-license=Zdjęcia prezentowane na stronie nie mogą być wykorzystane bez zgody autora
-albums=Albumy
+home=Home
+notetitle=Tytuł notatki
+notecontent=Treść notatki
+add=Dodaj notatkę
+delete=Usuń
+deleteall=Usuń wszystkie
+login=Login
+logout=Wyloguj
+notes=Notatki
+newnote=Nowa notatka

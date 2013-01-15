@@ -2,33 +2,33 @@ package controllers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import model.MenuItem;
 import models.Note;
 import play.Logger;
 import play.api.templates.Html;
-import play.db.DB;
+import play.data.Form;
+import play.data.validation.ValidationError;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.actors.threadpool.Arrays;
 import views.html.home;
-import views.html.menu;
+import views.html.notes;
+import views.html.note;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.SqlQuery;
 import com.google.gdata.util.ServiceException;
 
 public class Application extends Controller {
 	
 	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
 
+	static Form<Note> noteForm = form(Note.class);
+	
 	public static Html menu() {
 		List<Note> l = Note.find.all();
 		Logger.info(l+"");
 		
-		return menu.render(Note.find.all());
+		return notes.render(Note.find.all());
 	}
 	
 	public static Result home(String message) {
@@ -54,6 +54,17 @@ public class Application extends Controller {
 	}	
 	
 	public static Result add() {
+		if(noteForm.bindFromRequest().hasErrors()) {
+			return badRequest("Title required!");
+		}
+		Note note = noteForm.bindFromRequest().get();
+	    note.setDate(new Date(System.currentTimeMillis()));
+		Logger.info(note+"");	    
+	    Ebean.save(note);
+		
+		/**
+		 * manually
+		 *
 		final Map<String, String[]> values = request().body().asFormUrlEncoded();
 	    final String title = values.get("title")[0];
 	    final String content = values.get("content")[0];
@@ -62,6 +73,7 @@ public class Application extends Controller {
 	    n.setContent(content);
 	    n.setDate(new Date(System.currentTimeMillis()));
 	    Ebean.save(n);
+	    */
 	    
 		return redirect("/");
 	}
@@ -69,6 +81,16 @@ public class Application extends Controller {
 	public static Result deleteAll() {
 		Ebean.createSqlUpdate("delete from Note").execute();
 		return redirect("/");
+	}
+	
+	public static Result delete(Long id) {
+		Note.find.byId(id).delete();
+		return redirect("/");
+	}
+	
+	public static Result openNote(Long id) {
+		Note n = Note.find.byId(id);
+		return ok(note.render(n));
 	}
 	
 }

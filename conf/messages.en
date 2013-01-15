@@ -1,5 +1,10 @@
-search=Search
-all=All
+home=Home
+notetitle=Note Title
+notecontent=Note Content
+add=Add Note
+delete=Delete
+deleteall=Delete All
 login=Login
-license=Images presented on this site may not be used without permission
-albums=Albums
+logout=Logout
+notes=Notes
+newnote=New note

@@ -50,4 +50,17 @@ public class Note extends Model {
 	}
 
 	public static Finder<Long, Note> find = new Finder<Long, Note>(Long.class, Note.class);
+
+	@Override
+	public String toString() {
+		return "Note [id=" + id + ", date=" + date + ", title=" + title + ", content=" + content + "]";
+	}
+
+    public String validate() {
+        if(title == null) {
+            return "Title reqired";
+        }
+        return null;
+    }
+	
 }

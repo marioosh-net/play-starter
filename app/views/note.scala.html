@@ -1,0 +1,23 @@
+@(note: models.Note)
+@main("Home") {
+    <ul>
+        <li><a href="/">Home</a></li>
+        @if(session.get("user") != null) {
+            <li><a href="/deleteall">@Messages("deleteall")</a></li>
+        }
+    </ul>
+} {
+    
+       <div class="left"><h1>@note.getTitle()</h1></div>
+       <div class="right">@note.getDate()</div>
+       <div class="clear"></div>
+       <div>
+           @if(session.get("user") != null) {
+              <a href="/delete/@note.getId()">@Messages("delete")</a>
+           }
+          <div>
+          @note.getContent()
+          </div>
+          </div>
+   
+}

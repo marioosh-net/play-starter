@@ -1,4 +1,4 @@
-@(title: String)(content: Html)(contentright: Html)
+@(title: String)(contentleft: Html)(content: Html)
 <!DOCTYPE html>
 <html>
     <head>
@@ -13,34 +13,59 @@
 		<![endif]-->
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/spinners/spinners.min.js")"></script>        
     </head>
-    <body id="body">
-	    <div id="wrapper">  
-	        <div id="main">
-	            <div id="content">      
-	                <div class="fixedwidth">
-	                
-		                <div class="left leftfixed">@content</div>
-		                
-		                <div class="right rightfixed">
-	                        <div id="header">
-					            <div class="right" style="margin-top: 10px;">
-						            @if(session.get("user") != null) {
-						                <a href="/logout" >Logout</a>
-						            } else {
-						                <span id="form" style="display: none;"><form id="f" action="/login" method="post" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
-		                                <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>&nbsp;
-		                            }
-	                                <a href="/?lang=pl">PL</a>|<a href="/?lang=en">EN</a>                   
-					            </div>
-	                            <div class="clear"></div>
-	                        </div>
-	                        
-	                        <div id="right"><a href="/">Home</a>@contentright</div>	                
-		                    	                    
-		                </div>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-    </body>
+
+	<body id="body">
+	
+		<div id="wrapper">
+			<div id="header">
+				<div class="fixedwidth">
+					<div class="left">
+						LOGO HERE
+					</div>
+					<div class="right">
+					    <a href="/?lang=pl">PL</a>
+					    <a href="/?lang=en">EN</a>
+					</div>
+				</div>
+			</div>
+	
+			<div id="main">
+				<div id="menu">
+					<div class="fixedwidth">
+						<div class="menu-item">
+							<a href="/">HOME</a>
+						</div>
+	
+						<div class=" right">
+	                        @if(session.get("user") != null) {
+	                            <a href="/logout" >Logout</a>
+	                        } else {
+	                            <span id="form" style="display: none;"><form id="f" action="/login" method="post" style="display: inline;"><input name="pass" type="password" value=""/>&nbsp;<a href="#" onclick="$('#f').submit();">OK</a>|<a href="#" onclick="$('#form').hide(); $('#loginb').show();">Cancel</a><input type="submit" value="Login" style="display: none;"/></form></span>
+	                            <a id="loginb" href="#" onclick="$('#form').toggle(); $(this).toggle();">@Messages("login")</a>&nbsp;
+	                        }
+						</div>
+	
+						<div class="clear"></div>
+	
+					</div>
+				</div>
+	
+				<div id="content">
+					<div class="fixedwidth">
+					<div class="left left-content">@contentleft</div>
+					<div class="right right-content">@content</div>
+					<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+			<div id="push"></div>
+		</div>
+	
+		<div id="footer">
+			<div class="fixedwidth">FOOTER HERE</div>
+		</div>
+	
+	</body>
+
 </html>
+

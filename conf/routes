@@ -6,6 +6,8 @@
 POST     /login                                      controllers.Application.login()
 POST     /add                                      controllers.Application.add()
 GET      /deleteall                                 controllers.Application.deleteAll()
+GET      /delete/:id                                 controllers.Application.delete(id:Long)
+GET      /note/:id                                 controllers.Application.openNote(id:Long)
 GET     /logout                                     controllers.Application.logout()
 GET     /                                           controllers.Application.home(message ?="")
 

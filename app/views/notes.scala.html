@@ -1,0 +1,24 @@
+@(notes: List[models.Note])
+@snippet(note: models.Note) = {
+    <div id="uu" class="note">
+       <div><a href="/note/@note.getId()">@note.getDate()</a></div>
+        @note.getTitle()
+           @if(session.get("user") != null) {
+              <a href="/delete/@note.getId()">@Messages("delete")</a>
+           }
+    </div>
+}
+<h1>@Messages("notes")</h1>
+<div id="notes">
+		@for(note <- notes) {
+		    @snippet(note)
+		}
+</div>
+
+<h2>@Messages("newnote")</h2>
+<form method="post" action="/add">
+    @Messages("notetitle"):<br/><input type="text" name="title"/><br/>
+    @Messages("notecontent"):<br/><textarea name="content"></textarea><br/>
+    <input type="submit" value="@Messages("add")"/>
+</form>
+

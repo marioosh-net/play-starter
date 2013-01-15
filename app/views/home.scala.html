@@ -1,9 +1,15 @@
-@(message: String, menu: Html)
+@(message: String, notes: Html)
 @main("Home") {
-    @menu
+    <ul>
+        <li><a href="/">Home</a></li>
+        @if(session.get("user") != null) {
+            <li><a href="/deleteall">@Messages("deleteall")</a></li>
+        }
+    </ul>
 } {
     @if(message != null) {
         <div class="message">@message</div>
     }
-    RIGHT CONTENT
+
+    @notes    
 }
