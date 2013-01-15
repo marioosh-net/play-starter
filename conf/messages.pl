@@ -8,3 +8,4 @@ login=Login
 logout=Wyloguj
 notes=Notatki
 newnote=Nowa notatka
+nonotes=Brak notatek

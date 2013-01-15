@@ -13,6 +13,9 @@
 		@for(note <- notes) {
 		    @snippet(note)
 		}
+		@if(notes.size() == 0) {
+		  @Messages("nonotes")
+		}
 </div>
 
 <h2>@Messages("newnote")</h2>

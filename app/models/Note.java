@@ -1,6 +1,7 @@
 package models;
 
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import play.data.validation.Constraints.Required;
@@ -15,6 +16,8 @@ public class Note extends Model {
 	
 	@Required
 	private String title;
+	
+	@Column(length=1000)
 	private String content;
 
 	public Long getId() {
