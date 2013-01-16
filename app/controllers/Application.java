@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import other.Role;
 import models.Note;
 import play.Logger;
 import play.api.templates.Html;
@@ -24,6 +25,7 @@ import com.google.gdata.util.ServiceException;
 public class Application extends Controller {
 	
 	static final String ADMIN_PASSWORD = play.Play.application().configuration().getString("admin.password");
+	static final String USER_PASSWORD = play.Play.application().configuration().getString("user.password");
 
 	public static Html menu() {
 		List<Note> l = Note.find.all();
@@ -49,12 +51,17 @@ public class Application extends Controller {
 	    final String hash = values.get("pass")[0];
 		if(hash.equals(ADMIN_PASSWORD)) {
 			session("user", "admin");
+			session("role", Role.ADMIN.name());
+			return redirect("/");
+		} else if(hash.equals(USER_PASSWORD)) {
+			session("user", "user");
+			session("role", Role.USER.name());
 			return redirect("/");
 		}
 		return ok(home.render("login error", menu()));
 	}	
 
-	@With(Logged.class)
+	@Logged(Role.ADMIN)
 	public static Result add() {
 		Form<Note> noteForm = form(Note.class);
 		if(noteForm.bindFromRequest().hasErrors()) {
@@ -81,13 +88,13 @@ public class Application extends Controller {
 		return redirect("/");
 	}
 	
-	@With(Logged.class)
+	@Logged(Role.ADMIN)
 	public static Result deleteAll() {
 		Ebean.createSqlUpdate("delete from Note").execute();
 		return redirect("/");
 	}
 
-	@With(Logged.class)
+	@Logged(Role.ADMIN)
 	public static Result delete(Long id) {
 		Note.find.byId(id).delete();
 		return redirect("/");

@@ -1,21 +1,15 @@
 package interceptors;
 
-import java.util.Map;
-import play.Logger;
-import play.mvc.Action;
-import play.mvc.Http.Context;
-import play.mvc.Result;
-import scala.actors.threadpool.Arrays;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import other.Role;
+import play.mvc.With;
 
-public class Logged extends Action.Simple {
-
-	@Override
-	public Result call(Context paramContext) throws Throwable {
-		if(paramContext.session().get("user") != null) {
-			return delegate.call(paramContext);
-		} else {
-			return forbidden("You need to be logged here!");
-		}
-	}
-
+@With(LoggedAction.class)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Logged {
+	Role value();// default Role.ANONYMOUS;
 }

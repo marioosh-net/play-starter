@@ -4,6 +4,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import play.Logger;
 import play.data.validation.Constraints.Required;
 import play.db.ebean.Model;
 
@@ -61,6 +62,7 @@ public class Note extends Model {
 
     public String validate() {
         if(title == null) {
+        	Logger.debug("VALIDATE");
             return "Title reqired";
         }
         return null;
