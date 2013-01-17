@@ -1,4 +1,4 @@
-@(notes: List[models.Note])
+@(notes: List[models.Note]) @*, addForm: Form[models.Note])*@
 @snippet(note: models.Note) = {
     <div id="uu" class="note">
        <div><a href="/note/@note.getId()">@note.getDate()</a></div>
@@ -25,3 +25,10 @@
     <input type="submit" value="@Messages("add")"/>
 </form>
 
+@*
+@helper.form(action = routes.Application.add()) {
+     @helper.inputText(addForm("title"))
+     @helper.inputText(addForm("content"))
+    <input type="submit" value="@Messages("add")"/>
+}
+*@
