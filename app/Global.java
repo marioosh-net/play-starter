@@ -3,8 +3,10 @@ import play.Application;
 import play.GlobalSettings;
 import play.Logger;
 import play.Play;
+import play.libs.F.Function0;
+import play.libs.F.Promise;
 import play.mvc.Http.RequestHeader;
-import play.mvc.Result;
+import play.mvc.SimpleResult;
 
 public class Global extends GlobalSettings {
 
@@ -19,26 +21,39 @@ public class Global extends GlobalSettings {
 	}
 
 	@Override
-	public Result onError(RequestHeader header, Throwable t) {
+	public Promise<SimpleResult> onError(RequestHeader header, Throwable t) {
 		if (Play.isDev()) {
 			return super.onError(header, t);
 		}
-		return notFound("Page Not Found");
+		return pageNotFound();
 	}
 
 	@Override
-	public Result onHandlerNotFound(RequestHeader header) {
+	public Promise<SimpleResult> onHandlerNotFound(RequestHeader header) {
 		if (Play.isDev()) {
 			return super.onHandlerNotFound(header);
 		}
-		return notFound("Page Not Found");
+		return pageNotFound();
 	}
 	
 	@Override
-	public Result onBadRequest(RequestHeader header, String paramString) {
+	public Promise<SimpleResult> onBadRequest(RequestHeader header, String error) {
 		if (Play.isDev()) {
-			super.onBadRequest(header, paramString);
+			super.onBadRequest(header, error);
 		}
-		return notFound("Page Not Found");
+		return pageNotFound();
+	}
+	
+	/**
+	 * page not found
+	 * @return
+	 */
+	private static Promise<SimpleResult> pageNotFound() {
+		return Promise.promise(new Function0<SimpleResult>() {
+			@Override
+			public SimpleResult apply() throws Throwable {
+				return notFound("Page Not Found");
+			}
+		});		
 	}
 }

@@ -63,7 +63,7 @@ public class Application extends Controller {
 
 	@Logged(Role.ADMIN)
 	public static Result add() {
-		Form<Note> noteForm = form(Note.class);
+		Form<Note> noteForm = Form.form(Note.class);
 
 		if(noteForm.bindFromRequest().hasErrors()) {
 			return badRequest("Title required!");
