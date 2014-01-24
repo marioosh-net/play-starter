@@ -1,28 +1,49 @@
 @(notes: List[models.Note]) @*, addForm: Form[models.Note])*@
 @snippet(note: models.Note) = {
-    <div id="uu" class="note">
-       <div><a href="/note/@note.getId()">@note.getDate()</a></div>
-        @note.getTitle()
-           @if(session.get("user") != null) {
-              <a href="/delete/@note.getId()">@Messages("delete")</a>
-           }
+<li class="media note">
+    <a class="pull-left" href="#">
+        <span class="glyphicon glyphicon-star"></span>
+    </a>
+    <div class="media-body">
+        <div><a href="/note/@note.getId()">@note.getTitle()</a></div>
+        <div>@note.getDate()</div>
+        @if(session.get("user") != null) {
+           <div><a href="/delete/@note.getId()">@Messages("delete")</a></div>
+        }        
     </div>
+</li>
 }
 <h1>@Messages("notes")</h1>
 <div id="notes">
+        <ul class="media-list">
 		@for(note <- notes) {
 		    @snippet(note)
 		}
+	   </ul>
 		@if(notes.size() == 0) {
 		  @Messages("nonotes")
 		}
 </div>
 
 <h2>@Messages("newnote")</h2>
-<form method="post" action="/add">
-    @Messages("notetitle"):<br/><input type="text" name="title"/><br/>
-    @Messages("notecontent"):<br/><textarea name="content"></textarea><br/>
-    <input type="submit" value="@Messages("add")"/>
+<form method="post" action="/add" class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="a" class="col-sm-2 control-label">@Messages("notetitle")</label>
+        <div class="col-sm-10">
+            <input type="text" name="title" id="a" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="b" class="col-sm-2 control-label">@Messages("notecontent")</label>
+        <div class="col-sm-10">
+            <textarea name="content" id="b" class="form-control"></textarea>
+        </div>    
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">@Messages("add")</button>
+        </div>
+    </div>
 </form>
 
 @*
